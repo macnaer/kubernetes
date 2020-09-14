@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-contact-list #name of the deployment
+  labels:
+    app: manifest-app2
+spec:
+  #replicas: 3 was changed to autoscaling
+  selector:
+    matchLabels:
+      project: react-contact-list
+  template:
+    metadata:
+      labels:
+        project: react-contact-list #pods labels
+    spec:
+      containers:
+        - name: react-contact-list
+          image: macnaer/react-contact-list
+          ports:
+            - containerPort: 3000
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v2beta1v1
+    kind: Deployment
+    name: react-contact-list #name of the deployment to scale
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prod-service-autoscale
+  labels: #mandatory
+    env: prod
+    owner: macnaer
+spec:
+  selector:
+    project: react-contact-list #project pods with this label will be attached with LB
+  ports:
+    - name: app-listener
+      port: 80 #port on LB
+      targetPort: 3000 #port on pod
+  type: LoadBalancer
