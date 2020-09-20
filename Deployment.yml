@@ -29,8 +29,8 @@ spec:
     apiVersion: apps/v2beta1v1
     kind: Deployment
     name: react-contact-list #name of the deployment to scale
-  minReplicas: 2
-  maxReplicas: 4
+  minReplicas: 3
+  maxReplicas: 6
   metrics:
     - type: Resource
       resource:
@@ -47,7 +47,7 @@ metadata:
   name: prod-service-autoscale
   labels: #mandatory
     env: prod
-    owner: alianinho
+    owner: macnaer
 spec:
   selector:
     project: react-contact-list #project pods with this label will be attached with LB
